@@ -169,7 +169,48 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        numAgents = gameState.getNumAgents()
+
+        def value(gameState, maxTurn, currentDepth):
+            if gameState.isWin() or gameState.isLose() or currentDepth == self.depth:
+                return self.evaluationFunction(gameState)
+
+            if maxTurn == 0:
+                return maxValue(gameState, currentDepth, maxTurn)
+            else:
+                return minValue(gameState, currentDepth, maxTurn)
+
+        def maxValue(gameState, currentDepth, index):
+            v = -9999
+            for action in gameState.getLegalActions(index):
+                successor = gameState.generateSuccessor(index, action)
+                v = max (v, value(successor, (index + 1) % numAgents, currentDepth))
+            return v
+        def minValue(gameState, currentDepth, index):
+            v = 9999
+            for action in gameState.getLegalActions(index):
+                successor = gameState.generateSuccessor(index, action)
+                if (index + 1) % numAgents ==0:
+                    v = min(v, value(successor, (index + 1) % numAgents, currentDepth+1))
+                else:
+                    v = min(v, value(successor, (index + 1) % numAgents, currentDepth))
+            return v
+
+        valueActionList = []
+
+        for action in gameState.getLegalActions(0):
+            successor = gameState.generateSuccessor(0,action)
+
+            v = value(successor, 1, 0)
+
+            valueActionList.append((v, action))
+
+        maxValueAction = max(valueActionList)
+        #print("minimax = ", maxValueAction[0])
+        return maxValueAction[1]
+
+        #util.raiseNotDefined()
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
