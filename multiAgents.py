@@ -223,6 +223,67 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
+
+        numAgents = gameState.getNumAgents()
+
+        def value(gameState, maxTurn, currentDepth, alpha, beta):
+            if gameState.isWin() or gameState.isLose() or currentDepth == self.depth:
+                return self.evaluationFunction(gameState)
+
+            if maxTurn == 0:
+                return maxValue(gameState, currentDepth, maxTurn, alpha, beta)
+            else:
+                return minValue(gameState, currentDepth, maxTurn,  alpha, beta)
+
+        def maxValue(gameState, currentDepth, index, alpha, beta):
+            v = -9999
+
+            for action in gameState.getLegalActions(index):
+                successor = gameState.generateSuccessor(index, action)
+                v = max(v, value(successor, (index + 1) % numAgents, currentDepth,  alpha, beta))
+
+                if (v > beta) :
+                    return v
+
+                alpha = max (alpha, v)
+            return v
+
+        def minValue(gameState, currentDepth, index, alpha, beta):
+            v = 9999
+            for action in gameState.getLegalActions(index):
+                successor = gameState.generateSuccessor(index, action)
+                if (index + 1) % numAgents == 0:
+                    v = min(v, value(successor, (index + 1) % numAgents, currentDepth + 1,  alpha, beta))
+                else:
+                    v = min(v, value(successor, (index + 1) % numAgents, currentDepth,  alpha, beta))
+
+                if (alpha > v):
+                    return v
+
+                beta = min (beta, v)
+            return v
+
+        valueActionList = []
+
+        alpha = -9999
+        beta = 9999
+
+        for action in gameState.getLegalActions(0):
+            successor = gameState.generateSuccessor(0, action)
+
+            v = value(successor, 1, 0, alpha, beta)
+
+            valueActionList.append((v, action))
+
+            # alpha beta pruning check for the root node
+            if(v > beta):
+                return action
+
+            alpha = max (alpha, v)
+
+        maxValueAction = max(valueActionList)
+        return maxValueAction[1]
+
         util.raiseNotDefined()
 
 
