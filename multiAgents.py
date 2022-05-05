@@ -100,10 +100,10 @@ class ReflexAgent(Agent):
         if action == Directions.STOP:
             evaluatedScore -= 5
 
-        if len(currentGameState.getFood().asList()) >= len(currentGameState.getFood().asList()):
+        if len(currentGameState.getFood().asList()) >= len(successorGameState.getFood().asList()):
             evaluatedScore -= 10
 
-        print("evaluated Score: ", evaluatedScore)
+        #print("evaluated Score: ", evaluatedScore)
 
         return evaluatedScore
 
@@ -356,9 +356,43 @@ def betterEvaluationFunction(currentGameState):
     evaluation function (question 5).
 
     DESCRIPTION: <write something here so we know what you did>
+
+    ***********************************************************
+    just like what I did in the first question, but with this different that I
+    considered values related to the current state not successor state or the
+    actions.
+
+    the features that are valuable for pacman are added to evaluated score and the
+    features that are bad are reduced from it
+    ***********************************************************
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    evaluatedScore = 0
+
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood().asList()
+    newGhostStates = currentGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+    powerPellets = currentGameState.getCapsules()
+
+    for foodPosition in newFood:
+        evaluatedScore -= (0.05 * manhattanDistance(newPos, foodPosition))
+
+    evaluatedScore -= (2*len(newFood))
+    evaluatedScore += 10 * len(powerPellets)
+
+    for i in range(len(newGhostStates)):
+        if newScaredTimes[i] == 0:
+            evaluatedScore += (manhattanDistance(newPos, newGhostStates[i].getPosition()))
+        else:
+            evaluatedScore -= (manhattanDistance(newPos, newGhostStates[i].getPosition()))
+
+    for sct in newScaredTimes:
+        evaluatedScore += 3 * sct
+
+    return evaluatedScore
+    #util.raiseNotDefined()
 
 
 # Abbreviation
