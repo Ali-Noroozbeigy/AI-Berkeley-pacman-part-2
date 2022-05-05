@@ -300,7 +300,54 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        numAgents = gameState.getNumAgents()
+
+        def value(gameState, maxTurn, currentDepth):
+            if gameState.isWin() or gameState.isLose() or currentDepth == self.depth:
+                return self.evaluationFunction(gameState)
+
+            if maxTurn == 0:
+                return maxValue(gameState, currentDepth, maxTurn)
+            else:
+                return expectedValue(gameState, currentDepth, maxTurn)
+
+        def maxValue(gameState, currentDepth, index):
+            v = -9999
+            for action in gameState.getLegalActions(index):
+                successor = gameState.generateSuccessor(index, action)
+                v = max(v, value(successor, (index + 1) % numAgents, currentDepth))
+            return v
+
+        def expectedValue(gameState, currentDepth, index):
+            v = 0.0
+            numActions = len(gameState.getLegalActions(index))
+
+            if numActions == 0:
+                return 0
+
+            for action in gameState.getLegalActions(index):
+                successor = gameState.generateSuccessor(index, action)
+                if (index + 1) % numAgents == 0:
+                    v += value(successor, (index + 1) % numAgents, currentDepth + 1)
+                else:
+                    v += value(successor, (index + 1) % numAgents, currentDepth)
+
+            return v / numActions
+
+        valueActionList = []
+
+        for action in gameState.getLegalActions(0):
+            successor = gameState.generateSuccessor(0, action)
+
+            v = value(successor, 1, 0)
+
+            valueActionList.append((v, action))
+
+        maxValueAction = max(valueActionList)
+        return maxValueAction[1]
+
+        #util.raiseNotDefined()
 
 
 def betterEvaluationFunction(currentGameState):
