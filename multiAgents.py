@@ -80,6 +80,8 @@ class ReflexAgent(Agent):
         print("new ghost: ", newGhostStates[0].getPosition())
         print("new scared:", newScaredTimes)'''
 
+        # weight of features are found with trial and error
+
         evaluatedScore = 0
 
         for position in newFood.asList():
